@@ -1,0 +1,11 @@
+let g:netrw_dirhistmax  =10
+let g:netrw_dirhist_cnt =9
+let g:netrw_dirhist_1='/Users/eriks'
+let g:netrw_dirhist_2='/Users/eriks/Documents'
+let g:netrw_dirhist_3='/Users/eriks/Documents/Projects'
+let g:netrw_dirhist_4='/Users/eriks/Documents/Projects/Experiments'
+let g:netrw_dirhist_5='/Users/eriks'
+let g:netrw_dirhist_6='/Users/eriks/Documents/Projects/Experiments/todolist'
+let g:netrw_dirhist_7='/Users/eriks/Documents/Projects/Experiments/todolist/app'
+let g:netrw_dirhist_8='/Users/eriks/Documents/Projects/Experiments/todolist/app/helpers'
+let g:netrw_dirhist_9='/Users/eriks/Documents/Projects/Experiments/todolist'
