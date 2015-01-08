@@ -16,6 +16,7 @@ Bundle 'tpope/vim-rails'
 Bundle 'croaky/vim-colors-github'
 Bundle 'danro/rename.vim'
 Bundle 'kchmck/vim-coffee-script'
+Bundle 'elixir-lang/vim-elixir'
 
 scriptencoding utf-8
 set shell=bash
@@ -41,7 +42,7 @@ set incsearch
 " autocmd BufWritePre * :%s/\s\+$//e
 
 let mapleader=","
-nnoremap <leader>r :!ruby %<cr>
+nnoremap <leader>r :w<cr>:!ruby %<cr>
 map <leader>ct :!ctags -R --exclude=.git<cr>
 
 set laststatus=2
@@ -67,13 +68,15 @@ map <Leader>c :Rcontroller
 map <Leader>cc :e app/controllers/concerns/
 map <Leader>v :Rview 
 map <Leader>t :w<cr>:call RunCurrentTest()<cr>
+map <Leader>tf :vs<cr>:call OpenRelatedFile()<cr>
 map <Leader>dm :!bin/rake db:migrate<cr>
-map <Leader>r :!bin/rake 
+map <Leader>rk :!bin/rake 
 map <Leader>rr :!bin/rake routes<cr>
 map <Leader>rn :!bin/rake notes<cr>
 map <Leader>rt :!bin/rake test:all<cr>
 map <Leader>rc :!COVERAGE=true bin/rake test:all && open coverage/index.html<cr>
 map <Leader>rs :!bin/rake stats<cr>
+map <Leader>j :!./jake<cr>
 map <Leader>, <C-w><C-w>
 map <Leader>gm :!bin/rails g model 
 map <Leader>gc :!bin/rails g controller 
@@ -86,22 +89,42 @@ map <C-h> :nohl<cr>
 map <C-s> <esc>:w<cr>
 imap <C-s> <esc>:w<cr>
 
-function! RunCurrentTest()
-  let in_test_file = match(expand("%"), '\(_test.rb\)$') != -1
-  if in_test_file
-    call SetTestFile()
-
-    call SetTestRunner("!bin/rake test")
-  endif
-  exec g:bjo_test_runner g:bjo_test_file
+function! InTestFile()
+  return match(expand("%"), '\(_test.rb\)$') != -1
 endfunction
 
-function! SetTestRunner(runner)
-  let g:bjo_test_runner=a:runner
+function! RunRake(arguments)
+  if filereadable("bin/rake")
+    let l:rake = "bin/rake"
+  else
+    let l:rake = "rake"
+  endif
+  exec "!" . l:rake . " " . a:arguments
+endfunction
+
+function! RunCurrentTest()
+  if InTestFile()
+    call SetTestFile()
+  endif
+  call RunRake("test TEST=" . g:bjo_test_file)
 endfunction
 
 function! SetTestFile()
   let g:bjo_test_file=@%
+endfunction
+
+" When currently in test file: open production file
+" When currently in production file: open test file
+" Only works for /lib versus /test folders (e.g. GEM development)
+function! OpenRelatedFile()
+  if InTestFile()
+    let l:file = substitute(@%, "test/", "lib/", "")
+    let l:file = substitute(l:file, "_test.rb", ".rb", "")
+  else
+    let l:file = substitute(@%, "lib/", "test/", "")
+    let l:file = substitute(l:file, ".rb", "_test.rb", "")
+  endif
+  exec ":e " . l:file
 endfunction
 
 " TODO: Define rails_projections for easy access to fixtures, JS, CSS, ...
